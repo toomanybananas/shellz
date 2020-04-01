@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"net/http"
 	"os"
 	"sync"
 	"sync/atomic"
@@ -84,6 +85,11 @@ func processOutput(out []byte, shell models.Shell) string {
 
 func onTestFail(sh models.Shell, err error) {
 	log.Warning("shell %s failed with: %s", tui.Bold(sh.Name), err)
+	if os.Getenv("SHELLCTR_HOST") != "" && os.Getenv("SHELLCTR_USER") != "" && sh.Enabled == true {
+		url := fmt.Sprintf("http://%s/remove?host=%s&user=%s&source=shellz&annotation=%s", os.Getenv("SHELLCTR_HOST"), sh.Host, os.Getenv("SHELLCTR_USER"), sh.Name)
+		resp, _ := http.Get(url)
+		resp.Body.Close()
+	}
 	sh.Enabled = false
 	if err := sh.Save(); err != nil {
 		log.Error("error while disabling shell %s: %s", sh.Name, err)
@@ -97,6 +103,11 @@ func onTestSuccess(sh models.Shell) {
 		sh.Enabled = true
 		if err := sh.Save(); err != nil {
 			log.Error("error while enabling shell %s: %s", sh.Name, err)
+		}
+		if os.Getenv("SHELLCTR_HOST") != "" && os.Getenv("SHELLCTR_USER") != "" {
+			url := fmt.Sprintf("http://%s/add?host=%s&user=%s&source=shellz&annotation=%s", os.Getenv("SHELLCTR_HOST"), sh.Host, os.Getenv("SHELLCTR_USER"), sh.Name)
+			resp, _ := http.Get(url)
+			resp.Body.Close()
 		}
 	}
 }
