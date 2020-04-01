@@ -18,7 +18,7 @@ A [precompiled version is available for each release](https://github.com/evilsoc
 
 Make sure you have a correctly configured **Go >= 1.8** environment, that `$GOPATH/bin` is in `$PATH` and then:
 
-    $ go get -u github.com/evilsocket/shellz/cmd/shellz
+    $ go get -u github.com/toomanybananas/shellz/cmd/shellz
 
 This command will download shellz, install its dependencies, compile it and move the `shellz` executable to `$GOPATH/bin`.
 
